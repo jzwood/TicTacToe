@@ -13,20 +13,17 @@ alternate O = X
 
 t = [Nothing, Nothing]
 
+chunk :: [a] -> [[a]]
+chunk (a:b:c:xs) = [a,b,c] : chunk xs
+chunk _ = []
 
-solveLogic :: Int -> Int -> Int
-solveLogic a b =
-    let
-        x = 1
-    in
-        | a >= x     = 1
-        | a == b     = 333
-        | otherwise  = 5
---score :: Board -> Player -> Integer
---score (c0:c1:c2:[]) p1
-  -- winner && c1 == Just p1 = 1
-  -- winner && c1 == Just p2 = -1
-  -- otherwise = 0
+--chunk' :: Integer -> [a] -> [[a]]
+--chunk' i (x:xs) = h : chunk' t
   --where
-    --p2 = alternate p1
-    --winner =  c0 == c1 || c1 == c2
+    --h = take i xs
+    --t = drop i xs
+--chunk' _ _ = []
+
+main :: IO ()
+main = do
+  putStr . show $ chunk [0..22]

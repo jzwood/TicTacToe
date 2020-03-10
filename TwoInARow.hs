@@ -17,10 +17,6 @@ enumerate = zip [0..]
 toPlayer :: Bool -> Player
 toPlayer isPlayerOneX = if isPlayerOneX then X else O
 
-alternate :: Player -> Player
-alternate X = O
-alternate O = X
-
 insertAt :: [a] -> a -> Integer -> [a]
 insert es _ i | i < 0 = es
 insertAt es e i = genericTake i es ++ e : genericDrop (i + 1) es
@@ -42,7 +38,6 @@ instance MiniMaxable Board where
   allMoves isPlayerOneX board = map (insertAt board $ Just (toPlayer isPlayerOneX)) openMoves
     where
       openMoves = map fst $ filter ((== Nothing) . snd) (enumerate board)
-      player = toPlayer isPlayerOneX
 
 startBoard = [Nothing, Nothing, Nothing] :: Board
 board2 = [Nothing, Just X, Nothing] :: Board
