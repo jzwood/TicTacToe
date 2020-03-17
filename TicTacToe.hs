@@ -3,6 +3,7 @@
 module TicTacToe where
 
 import Data.List (genericTake, genericDrop, transpose)
+import Data.Maybe (Maybe, catMaybes)
 import MiniMax
 
 data Player = X | O
@@ -29,11 +30,11 @@ winsOrtho :: Board -> Player -> Bool
 winsOrtho board player =
   let
     threeInARow :: [Maybe Player] -> Bool -> Bool
-    threeInARow (a:b:c:[]) w = a == b && b == c && b == Just player && w
+    threeInARow (a:b:c:[]) w = a == b && b == c && b == Just player || w
     threeInARow _ bool = bool
-    wins = foldr threeInARow True
+    win = foldr threeInARow False
   in
-    wins board || (wins $ transpose board)
+    win board || (win $ transpose board)
 
 winsDiagonal :: Board -> Player -> Bool
 winsDiagonal board player =
@@ -49,13 +50,13 @@ wins board player = winsOrtho board player || winsDiagonal board player
 instance MiniMaxable Board where
   --score :: Turn -> Board -> Value
   score isPlayerOneX board
-    | noWinner = 0
-    | xWon == isPlayerOneX = 1
-    | otherwise = -1
+    | xWon && isPlayerOneX = 1
+    | xWon && not isPlayerOneX || oWon && isPlayerOneX = -1
+    | oWon && not isPlayerOneX = 1
+    | otherwise = 0
     where
       xWon = wins board X
       oWon = wins board O
-      noWinner = not xWon && not oWon
 
   --terminal :: Board -> Bool
   terminal board = score True board /= 0 || (not $ elem Nothing $ concat board)
@@ -65,13 +66,13 @@ instance MiniMaxable Board where
     where
       flatBoard = concat board
       openIndices = map fst $ filter ((== Nothing) . snd) (enumerate $ flatBoard)
-      moves = chunk3 $ map (insertAt flatBoard (Just $ toPlayer isPlayerOneX)) openIndices
+      flatMoves = map (insertAt flatBoard (Just $ toPlayer isPlayerOneX)) openIndices
+      moves = map chunk3 flatMoves
 
 startBoard = [[Nothing, Nothing, Nothing],
               [Nothing, Nothing, Nothing],
               [Nothing, Nothing, Nothing]] :: Board
 
-
 main :: IO ()
 main = do
-  putStr . show $ negamax True startBoard
+  putStr . show $ negamaxalpha True startBoard 2
