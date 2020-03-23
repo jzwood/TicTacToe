@@ -23,13 +23,14 @@ insertAt es e i = genericTake i es ++ e : genericDrop (i + 1) es
 
 instance MiniMaxable Board where
   --score :: Turn -> Board -> Value
-  score isPlayerOneX (c0:c1:c2:[])
-    | noWinner = 0
-    | xWon == isPlayerOneX = 1
-    | otherwise = -1
+  score isPlayerOneX (c0:c1:tail)
+    | winner && (isPlayerOneX == isWinnerX) = 1
+    | winner = -1
+    | otherwise = score isPlayerOneX (c1:tail)
     where
-      noWinner =  c0 /= c1 && c1 /= c2 || c1 == Nothing
-      xWon = c1 == Just X
+      winner = c0 == c1 && c0 /= Nothing
+      isWinnerX = c0 == Just X
+  score _ _ = 0
 
   --terminal :: Board -> Bool
   terminal board = score True board /= 0 || (not $ elem Nothing board)
@@ -39,10 +40,13 @@ instance MiniMaxable Board where
     where
       openMoves = map fst $ filter ((== Nothing) . snd) (enumerate board)
 
-startBoard = [Nothing, Nothing, Nothing] :: Board
-board2 = [Nothing, Just X, Nothing] :: Board
+board3 = (replicate 9 Nothing) :: Board
+board4 = [Nothing,Just X,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing] :: Board
+board5 = [Just O,Just X,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing] :: Board
 
 main :: IO ()
 main = do
-  putStr . show $ negamax True startBoard
-  putStr . show $ negamax False board2
+  putStr . show $ board3
+  putStr . show $ negamaxalpha 2 True board3 2
+  putStr . show $ negamaxalpha 2 False board4 2
+  putStr . show $ negamaxalpha 2 True board5 2

@@ -34,18 +34,17 @@ negamax' turn game
     opponentBest = minimumBySnd $ zip moves values
     best = (\(b, v) -> (b, -v)) opponentBest
 
--- running min map: just like map but running minimum value is passed to each f
-rmmap :: (Real b) => b -> (a -> b -> (a, b)) -> [a] -> [b]
-rmmap m f [] = []
-rmmap m f (x:xs) = smallest : rmmap smallest f xs
-  where smallest = min m (snd $ f x m)
 
-negamaxalpha :: (MiniMaxable game, Real value) => Turn -> game -> value -> (game, value)
-negamaxalpha turn game alpha =
+negamaxalpha :: (MiniMaxable game, Real value) => value -> Turn -> game -> value -> (game, value)
+negamaxalpha inf turn game alpha =
   if terminal game then (game, score turn game) else best
     where
+      minmap :: (Real b) => b -> (a -> b -> (a, b)) -> [a] -> [b]
+      minmap m f [] = []
+      minmap m f (x:xs) = smallest : minmap smallest f xs
+        where smallest = min m (snd $ f x m)
       moves = allMoves turn game
-      values = rmmap 2 (negamaxalpha (not turn)) moves
+      values = minmap inf (negamaxalpha inf (not turn)) moves
       prunedValues = takeWhile (> alpha) values
       opponentBest = minimumBySnd $ zip moves values
       best = (\(b, v) -> (b, -v)) opponentBest

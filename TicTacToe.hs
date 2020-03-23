@@ -1,3 +1,5 @@
+#!/usr/bin/env runhaskell
+
 {-# LANGUAGE FlexibleInstances #-}
 
 module TicTacToe where
@@ -32,7 +34,7 @@ winsOrtho board player =
     threeInARow :: [Maybe Player] -> Bool -> Bool
     threeInARow (a:b:c:[]) w = a == b && b == c && b == Just player || w
     threeInARow _ bool = bool
-    win = foldr threeInARow False
+    win = foldr threeInARow False  -- potentially theres a more efficient way to do this
   in
     win board || (win $ transpose board)
 
@@ -75,4 +77,4 @@ startBoard = [[Nothing, Nothing, Nothing],
 
 main :: IO ()
 main = do
-  putStr . show $ negamaxalpha True startBoard 2
+  putStr . show $ negamax' True startBoard
